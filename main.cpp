@@ -5,6 +5,7 @@
 
  #include "main.h"
  #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "lemlib/chassis/chassis.hpp"
  #include "pros/colors.h"
  #include "pros/llemu.hpp"
  #include "pros/misc.h"
@@ -230,6 +231,9 @@
  
  bool colorSortOn = true;
  bool noStop = true;
+ bool checkHue = false;
+ float minimum =  10000;
+ float maximum = 0;
  
  void colorSort() {
    while (true) {
@@ -237,22 +241,20 @@
        colorSensor.set_led_pwm(100);
        int hue = colorSensor.get_hue();
        // CHANGE CHANGE CHANGE
-       if (autonomousMode % 2 == 0) { // If autonomousMode is odd, check for red
-         if (hue < 10) {
-           pros::delay(140); // CHANGE THESE VALUES
+       if (autonomousMode % 2 == 1) { // If autonomousMode is odd, check for red
+         if (hue < 17) {
+           pros::delay(132); // CHANGE THESE VALUES
            noStop = false;
-           Intake.move_velocity(-600); // Stop the motor
-           pros::delay(70);            // CHANGE THESE VALUES
+          //  Intake.move_velocity(-600); // Stop the motor
+           pros::delay(100);            // CHANGE THESE VALUES
            noStop = true;
-           Intake.move_velocity(
-               600); // Restart the motor (adjust speed as needed)
          }
        } else { // If autonomousMode is even, check for blue
-         if (hue > 200 && hue < 220) {
-           pros::delay(140); // CHANGE THESE VALUES
+         if (hue > 205 && hue < 230) {
+           pros::delay(132); // CHANGE THESE VALUES
            noStop = false;
            Intake.move_velocity(-600); // Stop the motor
-           pros::delay(70);            // CHANGE THESE VALUES
+           pros::delay(100);            // CHANGE THESE VALUES
            noStop = true;
            Intake.move_velocity(
                600); // Restart the motor (adjust speed as needed)
@@ -291,25 +293,25 @@
  
     draw_buttons();
     pros::Task touchTask(check_touch);
-   pros::Task screenTask([&]() {
-     while (true) {
-       // print robot location to the brain screen
-       pros::lcd::print(0, "X: %f", chassis.getPose().x);         // x
-       pros::lcd::print(1, "Y: %f", chassis.getPose().y);         // y
-       pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-       pros::lcd::print(3, buttonLabels[autonomousMode - 1]);
-       pros::lcd::print(4, colorSortOn ? "Color Sort On" : "Color Sort Off");
-       // pros::lcd::print(5, "kp: %f", kP);
-       // pros::lcd::print(6, "kD: %f", kD);
-       // pros::lcd::print(7, "Green: %f", colorSensor.get_rgb().green);
-       // pros::lcd::print(4, "Value: %f", autonomousMode);
+  //  pros::Task screenTask([&]() {
+  //    while (true) {
+  //      // print robot location to the brain screen
+  //      pros::lcd::print(0, "X: %f", chassis.getPose().x);         // x
+  //      pros::lcd::print(1, "Y: %f", chassis.getPose().y);         // y
+  //      pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+  //      pros::lcd::print(3, "Hue: %f", checkHue);    // hue (checkHue);
+  //      pros::lcd::print(4, colorSortOn ? "Color Sort On" : "Color Sort Off");
+  //      pros::lcd::print(5, "Min: %f", minimum);
+  //      pros::lcd::print(6, "Max: %f", maximum);
+  //      // pros::lcd::print(7, "Green: %f", colorSensor.get_rgb().green);
+  //      // pros::lcd::print(4, "Value: %f", autonomousMode);
  
-       // log position telemetry
-       lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-       // delay to save resources
-       pros::delay(50);
-     }
-   });
+  //      // log position telemetry"
+  //      lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
+  //      // delay to save resources
+  //      pros::delay(50);
+  //    }
+  //  });
  }
  
  /**
@@ -443,47 +445,55 @@
  
  void blueNegative() {
    chassis.setPose(85, 16, 212);
-   chassis.moveToPoint(82.25, 9.5, 2000);
+   chassis.moveToPoint(84, 8.5, 2000);
    pros::delay(100);
    curAngle = 3;
    pros::delay(500);
    chassis.moveToPoint(96, 45, 3000, {.forwards = false, .maxSpeed = 70});
    curAngle = 0;
    pros::delay(1000);
+   //grab tower
    Clamp.set_value(true);
-   chassis.turnToPoint(110, 60, 700);
+   //turn to the weird 4 stack and grab it
+   chassis.turnToPoint(113, 59, 700);
    Intake.move_velocity(600);
-   chassis.moveToPoint(110, 60, 2000);
+   chassis.moveToPoint(113, 59, 2000);
    chassis.turnToHeading(90, 700);
-   chassis.moveToPoint(131, 56.5, 2500);
-   chassis.moveToPoint(96, 48, 2500, {.forwards = false});
-   chassis.moveToPoint(119, 42, 2000);
+   chassis.moveToPoint(132, 56, 2500);
+   //back out
+   chassis.moveToPoint(96, 51, 2500, {.forwards = false});
+   //get 2 stack
+   chassis.moveToPoint(120, 42, 2000);
    chassis.turnToHeading(180, 500);
-   chassis.moveToPoint(117, 8, 2000);
-   chassis.turnToPoint(127, -2, 500);
+   //turn to corner and go to corner
+   chassis.moveToPoint(115, 9, 2000);
+   chassis.turnToPoint(127,-7, 700);
    Intake.move_velocity(0);
-   chassis.moveToPoint(127, -2, 1200, {.maxSpeed = 50});
+   chassis.moveToPoint(127, -7, 1200, {.maxSpeed = 50});
    pros::delay(400);
    Intake.move_velocity(600);
    pros::delay(800);
+   //leave corner and go back in and back out
    chassis.moveToPoint(109, 16, 1000, {.forwards = false});
    chassis.moveToPoint(121, 6, 600);
    chassis.moveToPoint(109, 16, 1000, {.forwards = false});
    pros::delay(200);
-   chassis.turnToPoint(68, 36, 1000);
-   chassis.moveToPoint(68, 36, 2000, {.minSpeed = 80});
+   chassis.turnToPoint(70, 40, 1000);
+   chassis.moveToPoint(70, 40, 2000, {.maxSpeed = 90});
  }
  
  void redNegative() {
    chassis.setPose(85, 128, 328);
-   chassis.moveToPoint(80.5, 133.5, 2000);
+   chassis.moveToPoint(80.5, 134, 2000);
    pros::delay(100);
    curAngle = 3;
    pros::delay(500);
-   chassis.moveToPoint(96, 99, 3000, {.forwards = false, .maxSpeed = 70});
+   //grab the tower
+   chassis.moveToPoint(96.5, 99, 3000, {.forwards = false, .maxSpeed = 70});
    curAngle = 0;
    pros::delay(1000);
    Clamp.set_value(true);
+   //go to 4 stack thingie
    chassis.turnToPoint(111, 86, 700);
    Intake.move_velocity(600);
    chassis.moveToPoint(111, 86, 2000);
@@ -493,96 +503,141 @@
    chassis.moveToPoint(119, 106, 2000);
    chassis.turnToHeading(0, 500);
    chassis.moveToPoint(111, 136, 2000);
-   chassis.turnToPoint(122, 153, 500);
+   chassis.turnToPoint(122, 149, 500);
    Intake.move_velocity(0);
-   chassis.moveToPoint(122, 153, 1200, {.maxSpeed = 50});
+   chassis.moveToPoint(122, 147, 1200, {.maxSpeed = 50});
    pros::delay(200);
    Intake.move_velocity(600);
-   pros::delay(800);
-   chassis.moveToPoint(107, 136, 1000, {.forwards = false});
-   chassis.moveToPoint(115, 144, 600);
-   chassis.moveToPoint(107, 136, 1000, {.forwards = false});
+   pros::delay(1000);
+   chassis.moveToPoint(107, 129, 1000, {.forwards = false});
+   chassis.moveToPoint(115, 141, 600);
+   chassis.moveToPoint(107, 129, 1000, {.forwards = false});
    pros::delay(200);
-   chassis.turnToPoint(68, 97, 1000);
-   chassis.moveToPoint(68, 97, 2000, {.minSpeed = 80});
+   chassis.turnToPoint(68, 90, 1000);
+   chassis.moveToPoint(68, 90, 2000);
  }
  
+
  void bluePositive() {
+  colorSortOn = false;
    chassis.setPose(59, 16, 148);
-   chassis.moveToPoint(65, 11.6, 2000);
-   pros::delay(100);
-   curAngle = 3;
-   pros::delay(500);
+  //  chassis.moveToPoint(65, 11.6, 2000);
+  //  pros::delay(100);
+  //  curAngle = 3;
+  //  pros::delay(500);
+  // chassis.turnToPoint(48, 46, 1000);
    chassis.moveToPoint(48, 46, 3000, {.forwards = false, .maxSpeed = 70});
-   curAngle = 0;
+   //curAngle = 0;
+   //grab first tower
    pros::delay(1200);
    Clamp.set_value(true);
    pros::delay(50);
-   chassis.turnToHeading(30, 1200);
-   LeftDoinker.set_value(true);
-   chassis.moveToPoint(61, 62, 2000);
+  //  //go to center and grab rings
+  //  chassis.turnToHeading(45, 1200);
+  //  LeftDoinker.set_value(true);
+  //  chassis.moveToPoint(65, 57, 2000);
+  //  pros::delay(100);
+  //  chassis.moveToPose(67, 62, 6, 1000);
+  //  pros::delay(400);
+  //  RightDoinker.set_value(true);
+  //   //boomerang out
+  //  chassis.moveToPose(43, 26, 0, 2000, {.forwards = false});
+  //  pros::delay(1800);
+  //  //lift the doinkers and score those rings
+  //  LeftDoinker.set_value(false);
+  //  RightDoinker.set_value(false);
+   colorSortOn = true;
    pros::delay(100);
-   chassis.moveToPose(63, 69, 6, 1000);
-   pros::delay(400);
-   RightDoinker.set_value(true);
-   chassis.moveToPose(39, 32, 0, 2000, {.forwards = false});
-   pros::delay(1800);
-   LeftDoinker.set_value(false);
-   RightDoinker.set_value(false);
-   pros::delay(100);
+   
+  //  chassis.turnToPoint(54, 48, 700);
+  //  chassis.moveToPoint(54, 48, 2000);
+   chassis.turnToPoint(20, 47, 700);
+   chassis.moveToPoint(20, 47, 2000);
+   pros::delay(200);
+   chassis.moveToPoint(30, 47, 2000);
    Intake.move_velocity(600);
-   chassis.turnToPoint(49, 48, 700);
-   chassis.moveToPoint(49, 48, 2000);
-   chassis.turnToPoint(20, 48, 700);
-   chassis.moveToPoint(20, 48, 2000);
-   pros::delay(3000);
-   chassis.turnToPoint(62, 50, 1500);
+   //drop tower and hit the center
+   pros::delay(500);
+  //  chassis.turnToPoint(6, 4, 800);
+  //  Intake.move_velocity(0);
+  //  chassis.moveToPoint(6,4,2000);
+  //  pros::delay(200);
+  //  Intake.move_velocity(600);
+  //  pros::delay(800);
+  //  chassis.moveToPoint(24, 24, 2000, {.forwards = false});
+  //  chassis.moveToPoint(8, 8, 2000);
+  //  pros::delay(400);
+  //  chassis.moveToPoint(24, 24, 2000, {.forwards = false});
+   chassis.turnToPoint(64, 41, 1000);
    pros::delay(800);
+  
    Clamp.set_value(false);
-   chassis.moveToPoint(62, 50, 2000);
+   chassis.moveToPoint(64, 41, 2000, {.maxSpeed = 70});
  }
  
  void redPositive() {
   colorSortOn = false;
   chassis.setPose(59, 128, 32);
-  chassis.moveToPoint(62, 134.5, 2000);
-  pros::delay(100);
-  curAngle = 3;
-  pros::delay(500);
+  // chassis.moveToPoint(62, 134.5, 2000);
+  // pros::delay(100);
+  // curAngle = 3;
+  // pros::delay(500);
   chassis.moveToPoint(47, 97.5, 3000, {.forwards = false, .maxSpeed = 70});
-  curAngle = 0;
+  // curAngle = 0;
+  //grab tower
   pros::delay(1100);
   Clamp.set_value(true);
   pros::delay(150);
-  chassis.turnToPoint(59.5, 80, 800);
-  RightDoinker.set_value(true);
-  chassis.moveToPoint(59.5, 80, 2000);
-  pros::delay(100);
-  chassis.moveToPose(62.25, 76, 174, 1000);
-  pros::delay(400);
-  LeftDoinker.set_value(true);
-  chassis.moveToPose(42, 112, 180, 2000, {.forwards = false});
-  pros::delay(1800);
-  LeftDoinker.set_value(false);
-  RightDoinker.set_value(false);
-  pros::delay(100);
-  Intake.move_velocity(600);
+  //turn and go to the center to grab rings
+  // chassis.turnToPoint(59.5, 80, 800);
+  // RightDoinker.set_value(true);
+  // chassis.moveToPoint(59.5, 80, 2000);
+  // pros::delay(100);
+  // chassis.moveToPose(62.25, 76, 174, 1000);
+  // pros::delay(400);
+  // LeftDoinker.set_value(true);
+  // //pull out and drop
+  // chassis.moveToPose(42, 112, 180, 2000, {.forwards = false});
+  // pros::delay(1800);
+  // LeftDoinker.set_value(false);
+  // RightDoinker.set_value(false);
+  // pros::delay(100);
+  //score the damn rings
   colorSortOn = true;
-  chassis.turnToPoint(49, 99, 700);
-  chassis.moveToPoint(49, 99, 2000, {.maxSpeed = 50});
-  pros::delay(1000);
-  chassis.turnToPoint(18, 99, 700);
-  chassis.moveToPoint(18, 99, 2000, {.maxSpeed = 50});
+  // chassis.turnToPoint(49, 99, 700);
+  // chassis.moveToPoint(49, 99, 2000, {.maxSpeed = 50});
+  Intake.move_velocity(600);
+  pros::delay(200);
+  chassis.turnToPoint(20, 99, 700);
+  chassis.moveToPoint(20, 99, 2000, {.maxSpeed = 50});
   pros::delay(2000);
-  chassis.turnToPoint(58, 99, 1500);
+  // chassis.moveToPoint(30, 99, 2000, {.forwards = false, .maxSpeed = 50});
+  // chassis.turnToPoint(6, 140, 800);
+  // Intake.move_velocity(0);
+  // chassis.moveToPoint(6, 140, 2000);
+  // pros::delay(200);
+  //  Intake.move_velocity(600);
+  //  pros::delay(800);
+  //  chassis.moveToPoint(24, 120, 2000, {.forwards = false});
+  //  chassis.moveToPoint(8, 136, 2000);
+  //  pros::delay(400);
+  //  chassis.moveToPoint(24, 120, 2000, {.forwards = false});
+  //  chassis.turnToPoint(64, 103, 1000);
+  //  pros::delay(800);
+  //  Clamp.set_value(false);
+  //  chassis.moveToPoint(64, 103, 2000, {.maxSpeed = 70});
+  //turn to the center, drop tower, and hit center
+  chassis.turnToPoint(57, 99, 1500);
   pros::delay(800);
   Clamp.set_value(false);
-  chassis.moveToPoint(58, 99, 2000);  
+  chassis.moveToPoint(57, 99, 2000, {.maxSpeed = 70});  
+  
  }
  
  void blueTournamentNegative() {
    chassis.setPose(95, 19, 25.54);
-   chassis.moveToPoint(112.5, 60, 3000);
+   //4 stack stuff
+   chassis.moveToPoint(112.5, 59.5, 3000);
    pros::delay(400);
    RightDoinker.set_value(true);
    Intake.move_velocity(600);
@@ -590,15 +645,18 @@
    chassis.turnToHeading(64, 400);
    pros::delay(150);
    Intake.move_velocity(0);
+   //grab tower
    chassis.moveToPoint(79, 45, 2000, {.forwards = false});
    pros::delay(600);
    Clamp.set_value(true);
    Intake.move_velocity(600);
    pros::delay(200);
    RightDoinker.set_value(false);
+   //go to 2 stack and score it
    chassis.moveToPoint(102, 46, 2000);
    chassis.moveToPoint(117, 41, 2000);
-   chassis.moveToPoint(112, 41, 2000, {.forwards = false});
+   //back out and face the corner
+   chassis.moveToPoint(108, 41, 2000, {.forwards = false});
    pros::delay(100);
    chassis.turnToPoint(123.5, 10.5, 600);
    pros::delay(100);
@@ -608,28 +666,32 @@
    Intake.move_velocity(0);
   //  chassis.turnToPoint(128, 0.5, 600);
   //  //corner
-   chassis.moveToPoint(126, 0.5, 1000, {.maxSpeed = 50});
-   chassis.swingToPoint(127, -2, DriveSide::LEFT, 500);
+   chassis.moveToPoint(126, -0.5, 1000, {.maxSpeed = 50});
+   chassis.swingToPoint(128, -2, DriveSide::LEFT, 500);
    Intake.move_velocity(600);
    pros::delay(400);
    chassis.moveToPoint(117, 22.5, 2000, {.forwards = false});
-   chassis.moveToPoint(119, 14.5, 2000);
+   chassis.moveToPoint(121, 13.5, 2000);
    pros::delay(100);
    chassis.moveToPoint(112, 20.5, 2000, {.forwards = false});
    chassis.turnToHeading(-90, 1000);
-   chassis.moveToPoint(68, 20, 2000);
+   chassis.moveToPoint(68, 27, 2000);
+   // if run in quals
+  //  chassis.turnToPoint(70, 27, 1000);
+  //  chassis.moveToPoint(70, 27, 2000);
+
  }
  
 
  void redTournamentNegative() {
   chassis.setPose(95, 125, 154.46);
-  chassis.moveToPoint(108, 83, 3000);
+  chassis.moveToPoint(110, 83, 2500);
   pros::delay(400);
   LeftDoinker.set_value(true);
   Intake.move_velocity(600);
   //chassis.moveToPoint(110, 88, 600);
   chassis.turnToHeading(116, 400);
-  pros::delay(150);
+  pros::delay(100);
   Intake.move_velocity(0);
   chassis.moveToPoint(79, 99, 2000, {.forwards = false});
   pros::delay(600);
@@ -641,25 +703,25 @@
   chassis.moveToPoint(119, 103, 2000);
   //get the 2 stack
   chassis.moveToPoint(111, 103, 2000, {.forwards = false});
-  pros::delay(100);
-  chassis.turnToPoint(122.5, 132.5, 600);
-  pros::delay(100);
+  pros::delay(200);
+  chassis.turnToPoint(123.5, 132.5, 600);
+  pros::delay(200);
   //going close to corner
-  chassis.moveToPoint(122.5, 132.5, 2000);
+  chassis.moveToPoint(124.5, 132.5, 2000);
   pros::delay(200);
   Intake.move_velocity(0);
   //  chassis.turnToPoint(128, 143.5, 600);
   //  //corner
-  chassis.moveToPoint(127.5, 136.5, 1000, {.maxSpeed = 50});
+  chassis.moveToPoint(130.5, 135.5, 1000, {.maxSpeed = 50});
   Intake.move_velocity(600);
-  chassis.moveToPoint(129.5, 140.5,  1000);
+  chassis.moveToPoint(131, 140.5,  1000);
   pros::delay(500);
   chassis.moveToPoint(114, 120.5, 2000, {.forwards = false});
   chassis.moveToPoint(120, 129.5, 2000);
   pros::delay(400);
   chassis.moveToPoint(112, 123.5, 2000, {.forwards = false});
-  chassis.turnToPoint(44, 124, 1000);
-  chassis.moveToPoint(44, 124, 2000);  
+  chassis.turnToPoint(85, 134, 1000);
+  chassis.moveToPoint(85, 134, 2000);  
  }
  
  void blueTournamentNegativeMiddle() {}
@@ -673,17 +735,17 @@
   Clamp.set_value(true);
   pros::delay(50);
   chassis.turnToPoint(63, 62, 900);
-  pros::delay(300);
+  pros::delay(150);
   Intake.move_velocity(600);
   pros::delay(50);
   LeftDoinker.set_value(true);
-  chassis.moveToPoint(63, 62, 2000);
+  chassis.moveToPoint(63, 62, 2000, {.maxSpeed = 70});
   pros::delay(200);
   Intake.move_velocity(0);
-  chassis.moveToPose(68, 66, 10, 1000);
+  chassis.moveToPose(72, 66, 15, 1000);
   pros::delay(400);
   RightDoinker.set_value(true);
-  chassis.moveToPose(39, 32, 0, 2000, {.forwards = false});
+  chassis.moveToPose(42, 32, 0, 2000, {.forwards = false});
   Intake.move_velocity(-50);
   pros::delay(1800);
   LeftDoinker.set_value(false);
@@ -693,14 +755,14 @@
   chassis.turnToPoint(49, 48, 700);
   chassis.moveToPoint(49, 48, 2000);
   chassis.turnToPoint(20, 48, 700);
-  chassis.moveToPoint(20, 48, 2000);
+  chassis.moveToPoint(20, 48, 2000, {.maxSpeed = 80});
   chassis.moveToPoint(22, 48, 2000, {.forwards = false});
   pros::delay(100);
-  chassis.turnToPoint(5, 11, 1000);
-  chassis.moveToPoint(5, 11, 2000);
+  chassis.turnToPoint(5.5, 11, 1000);
+  chassis.moveToPoint(5.5, 11, 2000);
   Intake.move_velocity(0);
-  chassis.swingToPoint(5, 6, DriveSide::RIGHT, 1000);
-  pros::delay(200);
+  chassis.swingToPoint(2, 0, DriveSide::RIGHT, 1000);
+  pros::delay(400);
   Intake.move_velocity(600);
   pros::delay(800);
   chassis.moveToPoint(24, 20, 1500, {.forwards = false});
@@ -709,23 +771,23 @@
  void redTournamentPositive() {
   colorSortOn = false;
   chassis.setPose(59, 128, 32);
-  chassis.turnToPoint(47, 97.5, 500, {.forwards = false, .maxSpeed = 70});
+  chassis.turnToPoint(47, 97.5, 300, {.forwards = false, .maxSpeed = 70});
   chassis.moveToPoint(47, 97.5, 3000, {.forwards = false, .maxSpeed = 70});
   pros::delay(1100);
   Clamp.set_value(true);
   pros::delay(50);
+  chassis.turnToPoint(65, 84, 800);
+  pros::delay(300);
   Intake.move_velocity(600);
-  pros::delay(100);
-  chassis.turnToPoint(63, 82, 800);
   RightDoinker.set_value(true);
-  chassis.moveToPoint(63, 82, 2000);
+  chassis.moveToPoint(65, 84, 2000);
   pros::delay(150);
   Intake.move_velocity(0);
   pros::delay(100);
-  chassis.moveToPose(64.5, 79, 155, 1000);
+  chassis.moveToPose(72, 82, 155, 1000);
   pros::delay(400);
   LeftDoinker.set_value(true);
-  chassis.moveToPose(42, 112, 180, 2000, {.forwards = false});
+  chassis.moveToPose(44, 115, 180, 2000, {.forwards = false});
   pros::delay(1800);
   LeftDoinker.set_value(false);
   RightDoinker.set_value(false);
@@ -735,31 +797,33 @@
   chassis.turnToPoint(52, 99, 700);
   chassis.moveToPoint(52, 99, 2000);
   pros::delay(50);
-  chassis.turnToPoint(22, 96, 700);
-  chassis.moveToPoint(22, 96, 2000);
+  chassis.turnToPoint(22, 95, 700);
+  chassis.moveToPoint(22, 95, 2000);
   pros::delay(100);
   chassis.moveToPoint(25, 96, 2000, {.forwards = false});
-  chassis.turnToPoint(4, 134, 700);
-  chassis.moveToPoint(4, 134, 2000);
+  chassis.turnToPoint(-2, 134, 700);
+  chassis.moveToPoint(-2, 134, 2000);
+  chassis.swingToPoint(-2, 136, DriveSide::LEFT, 500);
   pros::delay(500);
   Intake.move_velocity(600);
   pros::delay(400);
-  chassis.moveToPoint(24, 120, 2000, {.forwards = false});
-  chassis.moveToPoint(8, 124, 1000);
+  chassis.moveToPoint(20, 121, 2000, {.forwards = false});
+  chassis.moveToPoint(0, 125, 1000);
   pros::delay(200);
   chassis.moveToPoint(24, 120, 2000, {.forwards = false});
-  chassis.turnToPoint(18, 80, 1500);
-  chassis.moveToPoint(18, 80, 1500);
+  chassis.turnToPoint(30, 90, 1500);
+  chassis.moveToPoint(30, 90, 1500);
   pros::delay(50);
   Clamp.set_value(false);
- }
+  }
+
   
  void autonomous() {
    Clamp.set_value(false);
    switch (autonomousMode) {
    case 1:
-     redTournamentPositive();
-     //  blueAWP();
+    // test();
+       blueAWP();
      break;
    case 2:
      redAWP();
@@ -822,7 +886,13 @@
    //  draw_KACHOW();
    Clamp.set_value(true);
    curAngle = 0;
+   minimum = 10000;
+   maximum = 0;
    while (true) {
+    if(checkHue){
+      minimum = fmin(minimum, colorSensor.get_hue());
+      maximum = fmax(maximum, colorSensor.get_hue());
+    }
      // get joystick positions
      int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
      int rightY = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
@@ -889,6 +959,7 @@
      // color sort on off
      if(master.get_digital_new_press(DIGITAL_X)){
        colorSortOn = !colorSortOn;
+      //  checkHue = !checkHue;
      }
  
      // delay to save resources
