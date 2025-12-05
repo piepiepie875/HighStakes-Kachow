@@ -12,17 +12,25 @@
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup leftMotors({-4, -5, -6}, pros::MotorGearset::blue);
-pros::MotorGroup rightMotors({8, 9, 10}, pros::MotorGearset::blue);
+pros::MotorGroup leftMotors({-19, 20, -21}, pros::MotorGearset::blue);
+pros::MotorGroup rightMotors({12, -13, 14}, pros::MotorGearset::blue);
+
+// Intake Motors
+pros::Motor Intake(-17, pros::MotorGearset::blue); // change
+pros::Motor Hood(15, pros::MotorGearset::blue); // change
+
+// Pneumatics
+pros::adi::DigitalOut MatchLoader('A'); // change port letter
+pros::adi::DigitalOut HoodPiston('B'); // change port letter
 
 // Inertial Sensor
-pros::Imu imu(1);
+pros::Imu imu(18); //change
 
 // tracking wheels
-pros::Rotation horizontalEnc(-3);
+pros::Rotation horizontalEnc(-16); //change
 // pros::Rotation verticalEnc(-11);
 
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -0.75); // up is positive, back is negative
+lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.375); // up is positive, back is negative
 // lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, -2.5); // Left is negative, right is positive
 
 // drivetrain settings
@@ -31,35 +39,34 @@ lemlib::Drivetrain drivetrain(&leftMotors,                // left motor group
                               11.375,                     // track width
                               lemlib::Omniwheel::NEW_325, // wheel diameter
                               450,                        // drivetrain rpm
-                              2 // Horizontal Drift is 2 with all omni drive. If
+                              8 // Horizontal Drift is 2 with all omni drive. If
                                 // we had traction wheels, it would have been 8
 );
 
 // lateral motion controller
-lemlib::ControllerSettings
-    linearController(8,   // proportional gain (kP)
-                     0,   // integral gain (kI)
-                     9,   // derivative gain (kD)
-                     3,   // anti windup
-                     1,   // small error range, in inches
-                     100, // small error range timeout, in milliseconds
-                     3,   // large error range, in inches
-                     500, // large error range timeout, in milliseconds
-                     0    // maximum acceleration (slew)
-    );
+lemlib::ControllerSettings linearController(8, // proportional gain (kP)
+                                              0, // integral gain (kI)
+                                              3, // derivative gain (kD)
+                                              3, // anti windup
+                                              1, // small error range, in inches
+                                              100, // small error range timeout, in milliseconds
+                                              3, // large error range, in inches
+                                              500, // large error range timeout, in milliseconds
+                                              20 // maximum acceleration (slew)
+);
 
 // angular motion controller
-lemlib::ControllerSettings
-    angularController(10, // proportional gain (kP)
-                      0,  // integral gain (kI)
-                      3,  // derivative gain (kD)
-                      0,  // anti windup
-                      0,  // small error range, in inches
-                      0,  // small error range timeout, in milliseconds
-                      0,  // large error range, in inches
-                      0,  // large error range timeout, in milliseconds
-                      0   // maximum acceleration (slew)
-    );
+lemlib::ControllerSettings angularController(1.8, // proportional gain (kP)
+                                              0, // integral gain (kI)
+                                              10, // derivative gain (kD)
+                                              3, // anti windup
+                                              1, // small error range, in inches
+                                              100, // small error range timeout, in milliseconds
+                                              3, // large error range, in inches
+                                              500, // large error range timeout, in milliseconds
+                                              0 // maximum acceleration (slew)
+);
+
 
 // sensors for odometry
 lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel
@@ -93,24 +100,25 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController,
                         sensors, &throttleCurve, &steerCurve);
 
 // Auton Selector
-int autonomousMode = 1;
+int autonomousMode = 0;
+int matchLoaderState = 0; // 0 is retracted, 1 is extended
 
-const int buttonWidth = 95;
-const int buttonHeight = 45;
-const int cols = 4;
-const int rows = 3;
-const int xSpacing = 20;
+const int buttonWidth = 100;
+const int buttonHeight = 30;
+const int cols = 3;
+const int rows = 2;
+const int xSpacing = 50;
 const int ySpacing = 20;
 const int startX = 10;
-const int startY = 10;
+const int startY = 100;
 
-const char *buttonLabels[5] = {
-    "AWP", "Right Side", "Left Side", "Comp Right", "Comp Left"};
+const char *buttonLabels[6] = {
+    "AWP", "Right Side", "Left Side", "Comp Right", "Comp Left", "Skills"};
 
 void draw_buttons() {
   pros::screen::erase();
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 6; i++) {
     pros::screen::set_pen(pros::c::COLOR_RED);
     int col = i % cols;
     int row = i / cols;
@@ -159,9 +167,15 @@ void initialize() {
   pros::lcd::initialize(); // initialize brain screen
   chassis.calibrate();     // calibrate sensors
   imu.reset();
+  MatchLoader.set_value(false); // Initialize piston to retracted state
+  HoodPiston.set_value(false); // Initialize piston to retracted state
+  chassis.setBrakeMode(MOTOR_BRAKE_COAST);
+  Intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  Hood.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  
 
-//    draw_buttons();
-//    pros::Task touchTask(check_touch);
+   draw_buttons();
+   pros::Task touchTask(check_touch);
   pros::Task screenTask([&]() {
     while (true) {
       // print robot location to the brain screen
@@ -179,7 +193,7 @@ void initialize() {
 
 // reset motors
 void disabled() {
-
+  
 }
 
 // initalize everything
@@ -188,9 +202,83 @@ void competition_initialize() {
   pros::Task touchTask(check_touch);
 }
 
+void intakeHold(){
+  Intake.move_velocity(600);
+  Hood.move_velocity(-600);
+  HoodPiston.set_value(false);
+}
+
+void intakeScore(){
+  HoodPiston.set_value(true);
+  Intake.move_velocity(600);
+  Hood.move_velocity(600);
+}
+
+void intakeStop(){
+  Intake.move_velocity(0);
+  Hood.move_velocity(0);
+}
+
+void AWP(){
+
+}
+
+void rightSide(){
+
+}
+
+void leftSide(){
+
+}
+
+void compRight(){
+
+}
+
+void compLeft(){
+
+}
+
+void skills(){
+  chassis.setPose(57.75, 24.75, -90); // reset pose at start of auton
+  chassis.moveToPoint(24,24.75, 5000, {.maxSpeed=50});
+  // chassis.turnToHeading(180, 800);
+  // MatchLoader.set_value(true);
+  // pros::delay(100);
+  // intakeHold();
+  // chassis.moveToPoint(24, 12, 1000, {.minSpeed = 30});
+  // pros::delay(8000);
+  // chassis.moveToPoint(24, 36, 3000, {.forwards = false});
+  // pros::delay(400);
+  // MatchLoader.set_value(false);
+  // intakeStop();
+}
+
 // switch statement for autos
 void autonomous() {
-
+  switch (autonomousMode) {
+  case 1:
+    AWP();
+    break;
+  case 2:
+    rightSide();
+    break;
+  case 3:
+    leftSide();
+    break;
+  case 4:
+    compRight();
+    break;
+  case 5:
+    compLeft();
+    break;
+  case 6:
+    skills();
+    break;
+  default:
+    chassis.setPose(0, 0, 0);
+    chassis.turnToHeading(90, 2000);
+  }
 }
 
 void opcontrol() {
@@ -201,5 +289,31 @@ void opcontrol() {
 
     // delay to save resources
     pros::delay(10);
+
+    if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+      HoodPiston.set_value(false);
+      Intake.move_velocity(600);
+      Hood.move_velocity(-600);
+    }
+    else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+      HoodPiston.set_value(true);
+      Intake.move_velocity(600);
+      Hood.move_velocity(600);
+    }
+    else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+      Intake.move_velocity(-600);
+      Hood.move_velocity(-600);
+    }
+    else{
+      Intake.move_velocity(0);
+      Hood.move_velocity(0);
+    }
+
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+      MatchLoader.set_value(!matchLoaderState);
+      matchLoaderState = !matchLoaderState;
+    }
+
+    //for later, left and right back things are for horns
   }
 }
