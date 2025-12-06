@@ -30,7 +30,7 @@ pros::Imu imu(18); //change
 pros::Rotation horizontalEnc(-16); //change
 // pros::Rotation verticalEnc(-11);
 
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.375); // up is positive, back is negative
+lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, 4.375); // up is positive, back is negative
 // lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, -2.5); // Left is negative, right is positive
 
 // drivetrain settings
@@ -72,7 +72,7 @@ lemlib::ControllerSettings angularController(1.8, // proportional gain (kP)
 lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to
                                      // nullptr as we don't have a second one
-                            nullptr, // horizontal tracking wheel
+                            &horizontal, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to
                                      // nullptr as we don't have a second one
                             &imu     // inertial sensor
@@ -219,6 +219,11 @@ void intakeStop(){
   Hood.move_velocity(0);
 }
 
+void outake(){
+  Intake.move_velocity(-600);
+  Hood.move_velocity(-600);
+}
+
 void AWP(){
 
 }
@@ -239,19 +244,54 @@ void compLeft(){
 
 }
 
-void skills(){
-  chassis.setPose(57.75, 24.75, -90); // reset pose at start of auton
-  chassis.moveToPoint(24,24.75, 5000, {.maxSpeed=50});
-  // chassis.turnToHeading(180, 800);
-  // MatchLoader.set_value(true);
-  // pros::delay(100);
-  // intakeHold();
-  // chassis.moveToPoint(24, 12, 1000, {.minSpeed = 30});
-  // pros::delay(8000);
-  // chassis.moveToPoint(24, 36, 3000, {.forwards = false});
-  // pros::delay(400);
-  // MatchLoader.set_value(false);
-  // intakeStop();
+void skills1(){
+  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
+  chassis.moveToPoint(22,24.75, 5000);
+  chassis.turnToHeading(180, 800);
+  MatchLoader.set_value(true);
+  pros::delay(100);
+  intakeHold();
+  chassis.moveToPoint(24, 0, 4000, {.maxSpeed = 60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(24,15, chassis.getPose().theta);
+  chassis.moveToPoint(25.25, 44, 3000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false});
+  pros::delay(300);
+  intakeScore();
+  pros::delay(6000);
+  chassis.moveToPose(48,7.5,90, 6000);
+  pros::delay(3000);
+  MatchLoader.set_value(true);
+  outake();
+  pros::delay(1000);
+  chassis.moveToPoint(72, 7.5, 5000);
+  pros::delay(4000);
+  MatchLoader.set_value(false);
+  intakeStop();
+}
+
+void skills2(){
+  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
+  chassis.moveToPoint(22,24.75, 5000);
+  chassis.turnToHeading(180, 800);
+  MatchLoader.set_value(true);
+  pros::delay(100);
+  intakeHold();
+  chassis.moveToPoint(24, 0, 4000, {.maxSpeed = 60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(24,15, chassis.getPose().theta);
+  chassis.moveToPoint(25.25, 44, 3000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false});
+  intakeScore();
+  pros::delay(6000);
+  chassis.moveToPose(120, 24, 90, 8000);
+
 }
 
 // switch statement for autos
@@ -273,7 +313,7 @@ void autonomous() {
     compLeft();
     break;
   case 6:
-    skills();
+    skills1();
     break;
   default:
     chassis.setPose(0, 0, 0);
