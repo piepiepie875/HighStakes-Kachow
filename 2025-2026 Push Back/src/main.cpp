@@ -8,6 +8,7 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.h"
 #include "pros/screen.hpp"
+#include <cmath>
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
@@ -19,6 +20,9 @@ pros::MotorGroup rightMotors({12, -13, 14}, pros::MotorGearset::blue);
 pros::Motor Intake(-17, pros::MotorGearset::blue); // change
 pros::Motor Hood(15, pros::MotorGearset::blue); // change
 
+// Intake command tracking (for jam detection task)
+int desiredIntakeVelocity = 0; // rpm
+
 // Pneumatics
 pros::adi::DigitalOut MatchLoader('A'); // change port letter
 pros::adi::DigitalOut HoodPiston('B'); // change port letter
@@ -27,7 +31,7 @@ pros::adi::DigitalOut HoodPiston('B'); // change port letter
 pros::Imu imu(18); //change
 
 // tracking wheels
-pros::Rotation horizontalEnc(-16); //change
+pros::Rotation horizontalEnc(16); //change
 // pros::Rotation verticalEnc(-11);
 
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, 4.375); // up is positive, back is negative
@@ -98,6 +102,39 @@ lemlib::ExpoDriveCurve
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController,
                         sensors, &throttleCurve, &steerCurve);
+
+// // Helper to set intake velocity and remember the commanded value for jam detection
+// void setIntakeVelocity(int velocity) {
+//   desiredIntakeVelocity = velocity;
+//   Intake.move_velocity(velocity);
+// }
+
+// Simple jam-detection task: if intake is commanded and stalls, pulse reverse briefly
+void intakeJamMonitor() {
+  int stallCount = 0;
+  while (true) {
+    const int cmd = desiredIntakeVelocity;
+    if (std::abs(cmd) > 100) { // only check when intake is running
+      const double actual = Intake.get_actual_velocity();
+      if (std::abs(actual) < 50) {
+        stallCount++;
+      } else {
+        stallCount = 0;
+      }
+
+      if (stallCount >= 5) { // ~250ms at 50ms loop
+        const int dir = (cmd > 0) ? 1 : -1;
+        Intake.move_velocity(-600 * dir); // pulse reverse to clear jam
+        pros::delay(300);
+        Intake.move_velocity(cmd); // resume commanded intake
+        stallCount = 0;
+      }
+    } else {
+      stallCount = 0;
+    }
+    pros::delay(50);
+  }
+}
 
 // Auton Selector
 int autonomousMode = 0;
@@ -172,6 +209,7 @@ void initialize() {
   chassis.setBrakeMode(MOTOR_BRAKE_COAST);
   Intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   Hood.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  // pros::Task intakeJamTask(intakeJamMonitor); // start jam monitor
   
 
    draw_buttons();
@@ -229,11 +267,85 @@ void AWP(){
 }
 
 void rightSide(){
-
+  chassis.setPose(79, 25, 0); // mirrored from (65, 25, 0)
+  intakeHold();
+  chassis.moveToPoint(97, 48, 3000); // mirrored from (45, 48)
+  pros::delay(500);
+  chassis.turnToHeading(125, 1000); // mirrored from -125
+  intakeStop();
+  chassis.moveToPoint(92, 55.25, 2000, {.forwards = false}); // mirrored from (57.5, 54.75)
+  pros::delay(800);
+  intakeScore();
+  pros::delay(300);
+  intakeStop();
+  chassis.moveToPoint(119.5, 24, 4000); // mirrored from (27.5, 24)
+  pros::delay(200);
+  intakeHold();
+  chassis.turnToHeading(180, 1000);
+  MatchLoader.set_value(true);
+  pros::delay(1000);
+  intakeHold();
+  chassis.moveToPoint(120.25, 0, 1500, {.maxSpeed=60}); // mirrored from (26.75, 0)
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(120, 15, chassis.getPose().theta); // mirrored from (24, 15)
+  chassis.moveToPoint(120, 45, 3000, {.forwards = false, .maxSpeed = 80}); // mirrored from (25, 45)
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(120, 47, 3000, {.forwards = false}); // mirrored from (25, 47)
+  pros::delay(300);
+  outake();
+  pros::delay(200);
+  intakeScore();
+  pros::delay(3000);
+  intakeStop();
+  pros::delay(100);
+  chassis.moveToPoint(119, 35, 3000); // mirrored from (25, 35)
+  HoodPiston.set_value(false);
+  chassis.moveToPoint(120, 47, 3000, {.forwards = false, .maxSpeed = 60}); // mirrored from (25, 47)
+  pros::delay(200);
+  chassis.moveToPoint(119, 24, 3000); // mirrored from (27.5, 24)
 }
 
 void leftSide(){
-
+  chassis.setPose(65, 25, 0);
+  intakeHold();
+  chassis.moveToPoint(45, 48, 3000);
+  pros::delay(500);
+  chassis.turnToHeading(-125, 1000);
+  intakeStop();
+  chassis.moveToPoint(57.5,54.75, 2000, {.forwards = false});
+  pros::delay(800);
+  intakeScore();
+  pros::delay(300);
+  intakeStop();
+  chassis.moveToPoint(27.5, 24, 4000);
+  pros::delay(200);
+  intakeHold();
+  chassis.turnToHeading(180, 1000);
+  MatchLoader.set_value(true);
+  pros::delay(1000);
+  intakeHold();
+  chassis.moveToPoint(26.75, 0, 1500, {.maxSpeed=60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(24,15, chassis.getPose().theta);
+  chassis.moveToPoint(25, 45, 3000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(25, 47, 3000, {.forwards = false});
+  pros::delay(300);
+  outake();
+  pros::delay(200);
+  intakeScore();
+  pros::delay(3000);
+  intakeStop();
+  pros::delay(100);
+  chassis.moveToPoint(25, 35, 3000);
+  HoodPiston.set_value(false);
+  chassis.moveToPoint(25, 47, 3000, {.forwards = false, .maxSpeed = 60});
+  pros::delay(200);
+  chassis.moveToPoint(25, 35, 3000);
 }
 
 void compRight(){
@@ -288,10 +400,105 @@ void skills2(){
   pros::delay(400);
   MatchLoader.set_value(false);
   chassis.moveToPoint(25.25, 46, 3000, {.forwards = false});
+  pros::delay(300);
+  outake();
+  pros::delay(200);
   intakeScore();
   pros::delay(6000);
-  chassis.moveToPose(120, 24, 90, 8000);
+  chassis.moveToPoint(25.25, 37, 3000);
+  pros::delay(200);
+  chassis.turnToHeading(90, 1000);
+  chassis.moveToPose(120, 26, 90, 8000);
+  chassis.turnToHeading(180, 1000);
+  MatchLoader.set_value(true);
+  intakeHold();
+  pros::delay(1000);
+  chassis.moveToPoint(120, 0, 4000, {.maxSpeed=60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(120,15, chassis.getPose().theta);
+  chassis.moveToPoint(121.75, 44, 4000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(121.75, 46, 3000, {.forwards = false});
+  intakeScore();
+  pros::delay(6000);
+  chassis.moveToPose(96,7.5,-90, 6000);
+  pros::delay(3000);
+  MatchLoader.set_value(true);
+  outake();
+  pros::delay(1000);
+  chassis.moveToPoint(72, 7.5, 5000);
+  pros::delay(4000);
+  MatchLoader.set_value(false);
+  intakeStop();
+}
 
+void skills3(){
+  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
+  chassis.moveToPoint(22,24.75, 5000);
+  chassis.turnToHeading(180, 800);
+  MatchLoader.set_value(true);
+  pros::delay(1000);
+  intakeHold();
+  chassis.moveToPoint(24, 0, 4000, {.maxSpeed = 60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(24,15, chassis.getPose().theta);
+  chassis.moveToPoint(25.25, 44, 3000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false});
+  pros::delay(300);
+  outake();
+  pros::delay(200);
+  intakeScore();
+  pros::delay(6000);
+  chassis.moveToPoint(25.25, 35, 3000);
+  pros::delay(200);
+  HoodPiston.set_value(false);
+  pros::delay(500);
+  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false, .minSpeed=60});
+  pros::delay(1000);
+  chassis.setPose(24, 41.5, 180);
+  pros::delay(200);
+  chassis.moveToPoint(24, 33, 3000);
+  pros::delay(200);
+  chassis.turnToHeading(90, 1000);
+  chassis.moveToPose(117, 28, 90, 8000, {.maxSpeed = 70});
+  chassis.turnToHeading(180, 1000);
+  MatchLoader.set_value(true);
+  intakeHold();
+  pros::delay(1000);
+  chassis.moveToPoint(121, -3, 4000, {.maxSpeed=60});
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(120,15, chassis.getPose().theta);
+  chassis.moveToPoint(121.75, 44, 4000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(121.75, 46, 3000, {.forwards = false});
+  pros::delay(300);
+  outake();
+  pros::delay(200);
+  intakeScore();
+  pros::delay(6000);
+  chassis.moveToPoint(121.75, 35, 3000);
+  pros::delay(200);
+  HoodPiston.set_value(false);
+  pros::delay(500);
+  chassis.moveToPoint(121.75, 46, 3000, {.forwards = false, .minSpeed=60}); 
+  pros::delay(200);
+  chassis.moveToPose(97,9,-90, 6000, {.maxSpeed=60});
+  pros::delay(3000);
+  HoodPiston.set_value(false);
+  MatchLoader.set_value(true);
+  outake();
+  pros::delay(1000);
+  chassis.moveToPoint(68, 8, 5000, {.minSpeed=50});
+  pros::delay(2000);
+  MatchLoader.set_value(false);
+  intakeStop();
 }
 
 // switch statement for autos
@@ -313,7 +520,7 @@ void autonomous() {
     compLeft();
     break;
   case 6:
-    skills1();
+    skills3();
     break;
   default:
     chassis.setPose(0, 0, 0);
