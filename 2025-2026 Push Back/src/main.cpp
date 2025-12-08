@@ -76,7 +76,7 @@ lemlib::ControllerSettings angularController(1.8, // proportional gain (kP)
 lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to
                                      // nullptr as we don't have a second one
-                            &horizontal, // horizontal tracking wheel
+                            nullptr, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to
                                      // nullptr as we don't have a second one
                             &imu     // inertial sensor
@@ -349,7 +349,40 @@ void leftSide(){
 }
 
 void compRight(){
-
+  chassis.setPose(79, 25, 0); // mirrored from (65, 25, 0)
+  intakeHold();
+  chassis.moveToPoint(97, 48, 3000); // mirrored from (45, 48)
+  pros::delay(300);
+  chassis.turnToPoint(114, 61.75, 1000); // mirrored from -125
+  chassis.moveToPoint(114, 61.75, 2000); // mirrored from (57.5, 54.75)
+  pros::delay(200);
+  chassis.moveToPoint(97,48, 3000, {.forwards=false});
+  chassis.moveToPoint(119.5, 26, 4000); // mirrored from (27.5, 24)
+  pros::delay(200);
+  chassis.turnToHeading(180, 1000);
+  MatchLoader.set_value(true);
+  pros::delay(1000);
+  intakeHold();
+  chassis.moveToPoint(120.25, 0, 2000, {.maxSpeed=60}); // mirrored from (26.75, 0)
+  chassis.waitUntilDone();
+  intakeStop();
+  chassis.setPose(120, 15, chassis.getPose().theta); // mirrored from (24, 15)
+  chassis.moveToPoint(120, 45, 3000, {.forwards = false, .maxSpeed = 80}); // mirrored from (25, 45)
+  pros::delay(400);
+  MatchLoader.set_value(false);
+  chassis.moveToPoint(120, 47, 3000, {.forwards = false}); // mirrored from (25, 47)
+  pros::delay(300);
+  outake();
+  pros::delay(200);
+  intakeScore();
+  pros::delay(3500);
+  intakeStop();
+  pros::delay(100);
+  chassis.moveToPoint(119, 35, 3000); // mirrored from (25, 35)
+  HoodPiston.set_value(false);
+  chassis.moveToPoint(120, 47, 3000, {.forwards = false, .maxSpeed = 60}); // mirrored from (25, 47)
+  pros::delay(200);
+  chassis.moveToPoint(119, 24, 3000); // mirrored from (27.5, 24)
 }
 
 void compLeft(){
@@ -465,12 +498,12 @@ void skills3(){
   chassis.moveToPoint(24, 33, 3000);
   pros::delay(200);
   chassis.turnToHeading(90, 1000);
-  chassis.moveToPose(117, 28, 90, 8000, {.maxSpeed = 70});
+  chassis.moveToPose(115, 28, 90, 8000, {.maxSpeed = 70});
   chassis.turnToHeading(180, 1000);
   MatchLoader.set_value(true);
   intakeHold();
   pros::delay(1000);
-  chassis.moveToPoint(121, -3, 4000, {.maxSpeed=60});
+  chassis.moveToPoint(119, -3, 4000, {.maxSpeed=60});
   chassis.waitUntilDone();
   intakeStop();
   chassis.setPose(120,15, chassis.getPose().theta);
