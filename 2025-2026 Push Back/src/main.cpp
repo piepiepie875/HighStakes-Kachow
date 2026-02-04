@@ -59,7 +59,7 @@ lemlib::ControllerSettings linearController(7, // proportional gain (kP)
 );
 
 // angular motion controller
-lemlib::ControllerSettings angularController(1.8, // proportional gain (kP)
+lemlib::ControllerSettings angularController(1.6, // proportional gain (kP)
                                               0, // integral gain (kI)
                                               10, // derivative gain (kD)
                                               3, // anti windup
@@ -233,48 +233,90 @@ void outake(){
 }
 
 void AWP(){
-
+  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
+  chassis.moveToPoint(23.5,24.75, 2000);
+  chassis.turnToHeading(180, 1100);
+  MatchLoader.set_value(true);
+  intakeHold();
+  chassis.moveToPoint(24, -20, 1500, {.maxSpeed = 60});
+  chassis.waitUntilDone();
+  chassis.setPose(24,14.5, chassis.getPose().theta);
+  chassis.moveToPoint(24.5, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
+  pros::delay(300);
+  MatchLoader.set_value(false);
+  pros::delay(200);
+  intakeScoreHigh();
+  chassis.waitUntilDone();
+  chassis.setPose(24, 43.5, chassis.getPose().theta);
+  chassis.moveToPoint(24, 38, 1000);
+  chassis.moveToPose(51, 51, 45, 4000);
+  intakeHold();
+  chassis.turnToHeading(-135, 1000);
+  chassis.moveToPoint(62.5, 62.5, 2000, {.forwards = false, .maxSpeed = 80});
+  pros::delay(200);
+  intakeScoreMiddle();
+  pros::delay(400);
+  MiddleGoal.set_value(false);
+  intakeStop();
+  chassis.moveToPoint(51, 51, 2000);
+  chassis.turnToHeading(90, 800);
+  chassis.moveToPoint(96, 51, 2000);
+  chassis.turnToHeading(135, 800);
+  chassis.moveToPoint(128, 24, 3000); 
+  chassis.turnToHeading(180, 1000);
+  // MatchLoader.set_value(true);
+  // pros::delay(1000);
+  // intakeHold();  
+  // chassis.moveToPoint(120, -20, 1600, {.maxSpeed=60});
+  // chassis.waitUntilDone();
+  // intakeStop();
+  // chassis.setPose(120,14.5, chassis.getPose().theta);
+  chassis.moveToPoint(128, 50, 3000, {.forwards = false, .earlyExitRange = 4});
+  // pros::delay(300);
+  // MatchLoader.set_value(false);
+  pros::delay(600);
+  intakeScoreHigh();
 }
 
 void rightSide(){
   chassis.setPose(79, 25, 0); // mirrored from (65, 25, 0)
   intakeHold();
-  chassis.moveToPoint(97, 48, 3000); // mirrored from (45, 48)
+  chassis.moveToPoint(96, 48, 3000); // mirrored from (45, 48)
   pros::delay(500);
-  chassis.turnToHeading(125, 1000); // mirrored from -125
   intakeStop();
-  chassis.moveToPoint(92, 55.25, 2000, {.forwards = false}); // mirrored from (57.5, 54.75)
+  chassis.turnToHeading(-45, 1000); // mirrored from -125
+  chassis.moveToPoint(92, 55.25, 2000); // mirrored from (57.5, 54.75)
   pros::delay(800);
-  intakeScoreHigh();
-  pros::delay(300);
-  intakeStop();
-  chassis.moveToPoint(119.5, 24, 4000); // mirrored from (27.5, 24)
-  pros::delay(200);
-  intakeHold();
-  chassis.turnToHeading(180, 1000);
-  MatchLoader.set_value(true);
-  pros::delay(1000);
-  intakeHold();
-  chassis.moveToPoint(120.25, 0, 1500, {.maxSpeed=60}); // mirrored from (26.75, 0)
-  chassis.waitUntilDone();
-  intakeStop();
-  chassis.setPose(120, 15, chassis.getPose().theta); // mirrored from (24, 15)
-  chassis.moveToPoint(120, 45, 3000, {.forwards = false, .maxSpeed = 80}); // mirrored from (25, 45)
-  pros::delay(400);
-  MatchLoader.set_value(false);
-  chassis.moveToPoint(120, 47, 3000, {.forwards = false}); // mirrored from (25, 47)
-  pros::delay(300);
   outake();
-  pros::delay(200);
-  intakeScoreHigh();
-  pros::delay(3000);
-  intakeStop();
   pros::delay(100);
-  chassis.moveToPoint(119, 35, 3000); // mirrored from (25, 35)
-  Holder.set_value(false);
-  chassis.moveToPoint(120, 47, 3000, {.forwards = false, .maxSpeed = 60}); // mirrored from (25, 47)
-  pros::delay(200);
-  chassis.moveToPoint(119, 24, 3000); // mirrored from (27.5, 24)
+  intakeStop();
+  // chassis.moveToPoint(119.5, 24, 4000); // mirrored from (27.5, 24)
+  // pros::delay(200);
+  // intakeHold();
+  // chassis.turnToHeading(180, 1000);
+  // MatchLoader.set_value(true);
+  // pros::delay(1000);
+  // intakeHold();
+  // chassis.moveToPoint(120.25, 0, 1500, {.maxSpeed=60}); // mirrored from (26.75, 0)
+  // chassis.waitUntilDone();
+  // intakeStop();
+  // chassis.setPose(120, 15, chassis.getPose().theta); // mirrored from (24, 15)
+  // chassis.moveToPoint(120, 45, 3000, {.forwards = false, .maxSpeed = 80}); // mirrored from (25, 45)
+  // pros::delay(400);
+  // MatchLoader.set_value(false);
+  // chassis.moveToPoint(120, 47, 3000, {.forwards = false}); // mirrored from (25, 47)
+  // pros::delay(300);
+  // outake();
+  // pros::delay(200);
+  // intakeScoreHigh();
+  // pros::delay(3000);
+  // intakeStop();
+  // pros::delay(100);
+  // chassis.moveToPoint(119, 35, 3000); // mirrored from (25, 35)
+  // Holder.set_value(false);
+  // chassis.moveToPoint(120, 47, 3000, {.forwards = false, .maxSpeed = 60}); // mirrored from (25, 47)
+  // pros::delay(200);
+  // chassis.moveToPoint(119, 24, 3000); // mirrored from (27.5, 24)
 }
 
 void leftSide(){
@@ -286,7 +328,7 @@ void leftSide(){
   intakeStop();
   chassis.moveToPoint(57.5,54.75, 2000, {.forwards = false});
   pros::delay(800);
-  intakeScoreHigh();
+  intakeScoreMiddle();
   pros::delay(300);
   intakeStop();
   chassis.moveToPoint(27.5, 24, 4000);
@@ -448,12 +490,15 @@ void autonomous() {
     skills();
     break;
   default:
-    chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 24, 2000);
+    AWP();
   }
 }
 
 void opcontrol() {
+  if(autonomousMode != 0){
+    RightWing.set_value(true);
+    LeftWing.set_value(true);
+  }
   while (true) {
     int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
     int rightY = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
