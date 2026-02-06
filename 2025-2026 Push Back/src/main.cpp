@@ -49,17 +49,17 @@ lemlib::Drivetrain drivetrain(&leftMotors,                // left motor group
 // lateral motion controller
 lemlib::ControllerSettings linearController(7, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              3, // derivative gain (kD)
+                                              6, // derivative gain (kD)
                                               3, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
                                               3, // large error range, in inches
                                               500, // large error range timeout, in milliseconds
-                                              20 // maximum acceleration (slew)
+                                              0 // maximum acceleration (slew)
 );
 
 // angular motion controller
-lemlib::ControllerSettings angularController(1.6, // proportional gain (kP)
+lemlib::ControllerSettings angularController(1.8, // proportional gain (kP)
                                               0, // integral gain (kI)
                                               10, // derivative gain (kD)
                                               3, // anti windup
@@ -233,37 +233,37 @@ void outake(){
 }
 
 void AWP(){
-  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
-  chassis.moveToPoint(23.5,24.75, 2000);
-  chassis.turnToHeading(180, 1100);
+  chassis.setPose(88.25, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
+  chassis.moveToPoint(120.5, 24.75, 2000); // flipped: 144 - 23.5 = 120.5
+  chassis.turnToHeading(180, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(24, -20, 1500, {.maxSpeed = 60});
+  chassis.moveToPoint(120, -20, 1500, {.maxSpeed = 60}); // flipped: 144 - 24 = 120
   chassis.waitUntilDone();
-  chassis.setPose(24,14.5, chassis.getPose().theta);
-  chassis.moveToPoint(24.5, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
+  chassis.setPose(120, 14.5, chassis.getPose().theta); // flipped: 144 - 24 = 120
+  chassis.moveToPoint(119.5, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4}); // flipped: 144 - 24.5 = 119.5
   pros::delay(300);
   MatchLoader.set_value(false);
   pros::delay(200);
   intakeScoreHigh();
   chassis.waitUntilDone();
-  chassis.setPose(24, 43.5, chassis.getPose().theta);
-  chassis.moveToPoint(24, 38, 1000);
-  chassis.moveToPose(51, 51, 45, 4000);
+  chassis.setPose(120, 43.5, chassis.getPose().theta); // flipped: 144 - 24 = 120
+  chassis.moveToPoint(120, 36, 1000); // flipped: 144 - 24 = 120
+  chassis.moveToPose(91, 53, 135, 4000, {.minSpeed = 50}); // flipped: 144 - 53 = 91, angle: 180 - 45 = 135
   intakeHold();
-  chassis.turnToHeading(-135, 1000);
-  chassis.moveToPoint(62.5, 62.5, 2000, {.forwards = false, .maxSpeed = 80});
-  pros::delay(200);
+  chassis.waitUntilDone();
+  chassis.turnToHeading(-45, 1100); // flipped: 180 - (-135) = 45, negated = -45
+  chassis.moveToPoint(81, 61, 2000, {.forwards = false}); // flipped: 144 - 63 = 81
+  pros::delay(500);
   intakeScoreMiddle();
-  pros::delay(400);
-  MiddleGoal.set_value(false);
-  intakeStop();
-  chassis.moveToPoint(51, 51, 2000);
-  chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(96, 51, 2000);
-  chassis.turnToHeading(135, 800);
-  chassis.moveToPoint(128, 24, 3000); 
-  chassis.turnToHeading(180, 1000);
+  pros::delay(500);
+  chassis.moveToPoint(93, 51, 2000, {.minSpeed = 50}); // flipped: 144 - 51 = 93
+  chassis.turnToHeading(-90, 800); // flipped: 180 - 90 = 90, negated = -90
+  chassis.moveToPoint(46, 51, 2000, {.minSpeed = 60}); // flipped: 144 - 98 = 46
+  intakeHold();
+  chassis.turnToHeading(-45, 800); // flipped: 180 - 135 = 45, negated = -45
+  chassis.moveToPoint(18, 24, 3000, {.minSpeed = 50}); // flipped: 144 - 126 = 18
+  chassis.turnToHeading(180, 600);
   // MatchLoader.set_value(true);
   // pros::delay(1000);
   // intakeHold();  
@@ -271,7 +271,7 @@ void AWP(){
   // chassis.waitUntilDone();
   // intakeStop();
   // chassis.setPose(120,14.5, chassis.getPose().theta);
-  chassis.moveToPoint(128, 50, 3000, {.forwards = false, .earlyExitRange = 4});
+  chassis.moveToPoint(18, 50, 3000, {.forwards = false, .earlyExitRange = 4}); // flipped: 144 - 126 = 18
   // pros::delay(300);
   // MatchLoader.set_value(false);
   pros::delay(600);
@@ -403,69 +403,32 @@ void compLeft(){
 
 void skills(){
   chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton
-  chassis.moveToPoint(22,24.75, 5000);
-  chassis.turnToHeading(180, 800);
-  MatchLoader.set_value(true);
-  pros::delay(1000);
-  intakeHold();
-  chassis.moveToPoint(24, 0, 4000, {.maxSpeed = 60});
-  chassis.waitUntilDone();
-  intakeStop();
-  chassis.setPose(24,15, chassis.getPose().theta);
-  chassis.moveToPoint(25.25, 44, 3000, {.forwards = false, .maxSpeed = 80});
-  pros::delay(400);
-  MatchLoader.set_value(false);
-  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false});
-  pros::delay(300);
-  outake();
-  pros::delay(200);
-  intakeScoreHigh();
-  pros::delay(6000);
-  chassis.moveToPoint(25.25, 35, 3000);
-  pros::delay(200);
-  Holder.set_value(false);
-  pros::delay(500);
-  chassis.moveToPoint(25.25, 46, 3000, {.forwards = false, .minSpeed=60});
-  pros::delay(1000);
-  chassis.setPose(24, 41.5, 180);
-  pros::delay(200);
-  chassis.moveToPoint(24, 33, 3000);
-  pros::delay(200);
-  chassis.turnToHeading(90, 1000);
-  chassis.moveToPose(115, 28, 90, 8000, {.maxSpeed = 70});
-  chassis.turnToHeading(180, 1000);
+  chassis.moveToPoint(23.5,24.75, 2000);
+  chassis.turnToHeading(180, 1100);
   MatchLoader.set_value(true);
   intakeHold();
-  pros::delay(1000);
-  chassis.moveToPoint(119, -3, 4000, {.maxSpeed=60});
+  chassis.moveToPoint(24, -20, 3000, {.maxSpeed = 60});
   chassis.waitUntilDone();
-  intakeStop();
-  chassis.setPose(120,15, chassis.getPose().theta);
-  chassis.moveToPoint(121.75, 44, 4000, {.forwards = false, .maxSpeed = 80});
-  pros::delay(400);
-  MatchLoader.set_value(false);
-  chassis.moveToPoint(121.75, 46, 3000, {.forwards = false});
+  chassis.setPose(24,14.5, chassis.getPose().theta);
+  chassis.moveToPose(14, 36, 180, 2200, {.forwards = false});
   pros::delay(300);
-  outake();
+  MatchLoader.set_value(false);
+  chassis.moveToPose(14, 96, 180, 4000, {.forwards = false});
+  chassis.swingToPoint(24, 104, DriveSide::RIGHT, 2500, {.forwards = false});
+  pros::delay(700);
+  intakeScoreHigh();
+  pros::delay(1200);
+  MatchLoader.set_value(true);
+  chassis.moveToPoint(24, 164, 1500, {.maxSpeed = 60});
+  chassis.waitUntilDone();
+  chassis.setPose(24, 129.5 , chassis.getPose().theta);
+  chassis.moveToPoint(24.5, 94, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
+  pros::delay(300);
+  MatchLoader.set_value(false);
   pros::delay(200);
   intakeScoreHigh();
-  pros::delay(6000);
-  chassis.moveToPoint(121.75, 35, 3000);
-  pros::delay(200);
-  Holder.set_value(false);
-  pros::delay(500);
-  chassis.moveToPoint(121.75, 46, 3000, {.forwards = false, .minSpeed=60}); 
-  pros::delay(200);
-  chassis.moveToPose(97,9,-90, 6000, {.maxSpeed=60});
-  pros::delay(3000);
-  Holder.set_value(false);
-  MatchLoader.set_value(true);
-  outake();
-  pros::delay(1000);
-  chassis.moveToPoint(68, 8, 5000, {.minSpeed=50});
-  pros::delay(2000);
-  MatchLoader.set_value(false);
-  intakeStop();
+  chassis.waitUntilDone();
+  chassis.setPose(24, 100.5, chassis.getPose().theta);
 }
 
 // switch statement for autos
@@ -498,6 +461,8 @@ void opcontrol() {
   if(autonomousMode != 0){
     RightWing.set_value(true);
     LeftWing.set_value(true);
+    rightWingState = 1;
+    leftWingState = 1;
   }
   while (true) {
     int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
