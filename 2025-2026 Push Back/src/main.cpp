@@ -421,7 +421,7 @@ void skills(){
   MatchLoader.set_value(true);
   chassis.moveToPoint(24, 164, 1500, {.maxSpeed = 60});
   chassis.waitUntilDone();
-  chassis.setPose(24, 129.5 , chassis.getPose().theta);
+  chassis.setPose(24, 129.5 , chassis.getPose().theta); 
   chassis.moveToPoint(24.5, 94, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
   pros::delay(300);
   MatchLoader.set_value(false);
