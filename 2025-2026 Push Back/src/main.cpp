@@ -412,48 +412,49 @@ chassis.moveToPoint(0, 5, 2000);
 
 void skills(){
   chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
-  chassis.moveToPoint(22.5, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
+  chassis.moveToPoint(21.5, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
   chassis.turnToHeading(180, 800);
   MatchLoader.set_value(true);
-  // intakeHold();
-  chassis.moveToPoint(22.5, -20, 3500, {.maxSpeed = 60}); // flipped: 144 - 24 = 120
+  intakeHold();
+  chassis.moveToPoint(21.5, -20, 3500, {.maxSpeed = 60}); // flipped: 144 - 24 = 120
   chassis.waitUntilDone();
   chassis.setPose(24,14.5, chassis.getPose().theta);
   chassis.moveToPoint(24, 22, 1500, {.forwards = false});
   LeftWing.set_value(true);
-  chassis.moveToPose(15, 36, 180, 2200, {.forwards = false});
+  chassis.moveToPose(14.5, 36, 180, 2200, {.forwards = false});
   pros::delay(600);
   MatchLoader.set_value(false);
-  chassis.moveToPose(15, 96, 180, 4000, {.forwards = false});
-  chassis.moveToPose(29, 120, 240, 2000, {.forwards = false});
+  intakeStop();
+  chassis.moveToPose(15.5, 96, 180, 4000, {.forwards = false});
+  chassis.moveToPose(27.5, 120, 240, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(0, 900);
-  chassis.moveToPoint(28, 80, 1000, {.forwards = false});
+  chassis.moveToPoint(26.5, 80, 1000, {.forwards = false, .maxSpeed = 70});
   chassis.waitUntilDone();
   chassis.setPose(28, 102, chassis.getPose().theta);
-  // intakeScoreHigh();
+  intakeScoreHigh();
   pros::delay(4500);
   MatchLoader.set_value(true);
-  // intakeHold();
-  chassis.moveToPoint(28, 164, 4500, {.maxSpeed = 60});
+  intakeHold();
+  chassis.moveToPoint(27.5, 164, 4500, {.maxSpeed = 60});
   chassis.waitUntilDone();
   chassis.setPose(28, 129.5 , chassis.getPose().theta); 
-  chassis.moveToPoint(27, 94, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
+  chassis.moveToPoint(28, 94, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
   pros::delay(300);
   MatchLoader.set_value(false);
   pros::delay(200);
-  // intakeScoreHigh();
+  intakeScoreHigh();
   pros::delay(4000);
   chassis.waitUntilDone();
   chassis.setPose(24, 100.5, chassis.getPose().theta);
   chassis.moveToPoint(24, 110, 1500);
-  // intakeStop();
+  intakeStop();
   chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(122, 110, 4000);
+  chassis.moveToPoint(119.5, 105, 4000);
   chassis.turnToHeading(0, 800);
   MatchLoader.set_value(true);
-  // intakeHold();
-  chassis.moveToPoint(122, 164, 4500, {.maxSpeed = 60});
+  intakeHold();
+  chassis.moveToPoint(119.5, 164, 4500, {.maxSpeed = 60});
 
   // Flipped copy of recent steps (x -> 144 - x, y -> 144 - y)
   chassis.waitUntilDone();
@@ -462,30 +463,31 @@ void skills(){
   chassis.moveToPose(130, 108, 0, 2200, {.forwards = false});
   pros::delay(600);
   MatchLoader.set_value(false);
+  intakeStop();
   chassis.moveToPose(130, 46, 0, 4000, {.forwards = false});
-  chassis.moveToPose(117.5, 27, 60, 2000, {.forwards = false});
+  chassis.moveToPose(114.5, 27, 60, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(180, 900);
-  chassis.moveToPoint(116.5, 64, 1000, {.forwards = false});
+  chassis.moveToPoint(113.5, 64, 1000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.setPose(114, 42, chassis.getPose().theta);
-  // intakeScoreHigh();
+  intakeScoreHigh();
   pros::delay(4500);
   MatchLoader.set_value(true);
-  // intakeHold();
-  chassis.moveToPoint(114, -20, 4500, {.maxSpeed = 60});
+  intakeHold();
+  chassis.moveToPoint(115, -20, 4500, {.maxSpeed = 60});
   chassis.waitUntilDone();
   chassis.setPose(116, 14.5, chassis.getPose().theta);
-  chassis.moveToPoint(116.5, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
+  chassis.moveToPoint(116, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
   pros::delay(300);
   MatchLoader.set_value(false);
   pros::delay(200);
-  // intakeScoreHigh();
+  intakeScoreHigh();
   chassis.waitUntilDone();
   chassis.setPose(120, 43.5, chassis.getPose().theta);
   chassis.moveToPoint(120, 15, 2000);
   chassis.turnToHeading(80, 1200);
-  chassis.moveToPoint(60, 12, 4000, {.forwards = false});
+  chassis.moveToPoint(50, 12, 4000, {.forwards = false});
 
 }
 
