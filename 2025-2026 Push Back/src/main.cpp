@@ -425,7 +425,7 @@ void skills(){
   pros::delay(600);
   MatchLoader.set_value(false);
   intakeStop();
-  chassis.moveToPose(15.5, 96, 180, 4000, {.forwards = false});
+  chassis.moveToPose(17.5, 96, 180, 4000, {.forwards = false}); // hits the wall here
   chassis.moveToPose(27.5, 120, 240, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(0, 900);
@@ -450,11 +450,11 @@ void skills(){
   chassis.moveToPoint(24, 110, 1500);
   intakeStop();
   chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(119.5, 105, 4000);
+  chassis.moveToPoint(119.5, 112, 4000); //this is where it hits the tower 
   chassis.turnToHeading(0, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(119.5, 164, 4500, {.maxSpeed = 60});
+  chassis.moveToPoint(120.5, 164, 4500, {.maxSpeed = 60}); //goes into tower 3
 
   // Flipped copy of recent steps (x -> 144 - x, y -> 144 - y)
   chassis.waitUntilDone();
