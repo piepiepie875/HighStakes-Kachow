@@ -412,7 +412,7 @@ chassis.moveToPoint(0, 5, 2000);
 
 void skills(){
   chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
-  chassis.moveToPoint(21.5, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
+  chassis.moveToPoint(22, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
   chassis.turnToHeading(180, 800);
   MatchLoader.set_value(true);
   intakeHold();
@@ -421,15 +421,15 @@ void skills(){
   chassis.setPose(24,14.5, chassis.getPose().theta);
   chassis.moveToPoint(24, 22, 1500, {.forwards = false});
   LeftWing.set_value(true);
-  chassis.moveToPose(14.5, 36, 180, 2200, {.forwards = false});
+  chassis.moveToPose(15, 36, 180, 2200, {.forwards = false});
   pros::delay(600);
   MatchLoader.set_value(false);
   intakeStop();
-  chassis.moveToPose(17.5, 96, 180, 4000, {.forwards = false}); // hits the wall here
-  chassis.moveToPose(27.5, 120, 240, 2000, {.forwards = false});
+  chassis.moveToPoint(15, 96, 4000, {.forwards = false}); // hits the wall here
+  chassis.moveToPose(28, 120, 240, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(0, 900);
-  chassis.moveToPoint(26.5, 80, 1000, {.forwards = false, .maxSpeed = 70});
+  chassis.moveToPoint(27, 80, 1000, {.forwards = false, .maxSpeed = 70});
   chassis.waitUntilDone();
   chassis.setPose(28, 102, chassis.getPose().theta);
   intakeScoreHigh();
@@ -450,11 +450,11 @@ void skills(){
   chassis.moveToPoint(24, 110, 1500);
   intakeStop();
   chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(119.5, 112, 4000); //this is where it hits the tower 
+  chassis.moveToPoint(121.5, 115, 4000); //this is where it hits the tower 
   chassis.turnToHeading(0, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(120.5, 164, 4500, {.maxSpeed = 60}); //goes into tower 3
+  chassis.moveToPoint(121.5, 164, 4500, {.maxSpeed = 60}); //goes into tower 3
 
   // Flipped copy of recent steps (x -> 144 - x, y -> 144 - y)
   chassis.waitUntilDone();
@@ -465,10 +465,10 @@ void skills(){
   MatchLoader.set_value(false);
   intakeStop();
   chassis.moveToPose(130, 46, 0, 4000, {.forwards = false});
-  chassis.moveToPose(114.5, 27, 60, 2000, {.forwards = false});
+  chassis.moveToPose(116.5, 27, 60, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(180, 900);
-  chassis.moveToPoint(113.5, 64, 1000, {.forwards = false});
+  chassis.moveToPoint(115.5, 64, 1000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.setPose(114, 42, chassis.getPose().theta);
   intakeScoreHigh();
@@ -487,7 +487,7 @@ void skills(){
   chassis.setPose(120, 43.5, chassis.getPose().theta);
   chassis.moveToPoint(120, 15, 2000);
   chassis.turnToHeading(80, 1200);
-  chassis.moveToPoint(50, 12, 4000, {.forwards = false});
+  chassis.moveToPoint(30, 6, 4000, {.forwards = false});
 
 }
 
