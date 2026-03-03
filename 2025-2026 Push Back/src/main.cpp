@@ -416,7 +416,7 @@ void skills(){
   chassis.turnToHeading(180, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(21.5, -20, 3500, {.maxSpeed = 60}); // flipped: 144 - 24 = 120
+  chassis.moveToPoint(21.5, -20, 2500, {.maxSpeed = 60}); // flipped: 144 - 24 = 120
   chassis.waitUntilDone();
   chassis.setPose(24,14.5, chassis.getPose().theta);
   chassis.moveToPoint(24, 22, 1500, {.forwards = false});
@@ -436,7 +436,7 @@ void skills(){
   pros::delay(4500);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(27.5, 164, 4500, {.maxSpeed = 60});
+  chassis.moveToPoint(27.5, 164, 3500, {.maxSpeed = 60});
   chassis.waitUntilDone();
   chassis.setPose(28, 129.5 , chassis.getPose().theta); 
   chassis.moveToPoint(28, 94, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
@@ -450,11 +450,11 @@ void skills(){
   chassis.moveToPoint(24, 110, 1500);
   intakeStop();
   chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(121.5, 115, 4000); //this is where it hits the tower 
+  chassis.moveToPoint(121.5, 115, 4000, {.maxSpeed = 70}); 
   chassis.turnToHeading(0, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(121.5, 164, 4500, {.maxSpeed = 60}); //goes into tower 3
+  chassis.moveToPoint(121.5, 164, 3500, {.maxSpeed = 60}); //goes into matchloader 3
 
   // Flipped copy of recent steps (x -> 144 - x, y -> 144 - y)
   chassis.waitUntilDone();
@@ -475,7 +475,7 @@ void skills(){
   pros::delay(4500);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(115, -20, 4500, {.maxSpeed = 60});
+  chassis.moveToPoint(115, -20, 3500, {.maxSpeed = 60});
   chassis.waitUntilDone();
   chassis.setPose(116, 14.5, chassis.getPose().theta);
   chassis.moveToPoint(116, 50, 2200, {.forwards = false, .maxSpeed = 70, .earlyExitRange = 4});
@@ -486,9 +486,9 @@ void skills(){
   chassis.waitUntilDone();
   chassis.setPose(120, 43.5, chassis.getPose().theta);
   chassis.moveToPoint(120, 15, 2000);
-  chassis.turnToHeading(80, 1200);
-  chassis.moveToPoint(30, 6, 4000, {.forwards = false});
-
+  chassis.turnToHeading(75, 1200);
+  chassis.moveToPose(90, 4, 90, 4000, {.forwards = false});
+  chassis.moveToPoint(30, 4, 5000, {.minSpeed = 100});
 }
 
 // switch statement for autos
