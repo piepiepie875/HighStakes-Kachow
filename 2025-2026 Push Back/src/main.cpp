@@ -232,6 +232,56 @@ void outake(){
   Intake.move_velocity(-600);
 }
 
+void AWP13(){
+  chassis.setPose(88.25, 24.75, -90); 
+  chassis.moveToPoint(120.2, 24.75, 1500, {.minSpeed = 60, .earlyExitRange = 4});
+  chassis.turnToHeading(180, 800, {.minSpeed = 50, .earlyExitRange = 10});
+  MatchLoader.set_value(true);
+  intakeHold();
+  chassis.moveToPoint(120.8, -20, 1400, {.maxSpeed = 80}); //first matchloader
+  chassis.waitUntilDone();
+  chassis.setPose(119, 14.5, chassis.getPose().theta); 
+  chassis.moveToPoint(118.5, 50, 1800, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4}); //score in first long goal
+  pros::delay(300);
+  MatchLoader.set_value(false);
+  pros::delay(350);
+  intakeScoreHigh();
+  chassis.waitUntilDone();
+  chassis.setPose(120, 43.5, chassis.getPose().theta);
+  chassis.moveToPoint(120, 32, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  intakeStop();
+  chassis.turnToPoint(99, 46, 1500, {.minSpeed = 50, .earlyExitRange = 10});
+  intakeHold();
+  chassis.moveToPoint(99, 46, 2000, {.minSpeed = 60, .earlyExitRange = 4});  //pick up first set of balls
+  pros::delay(300);
+  MatchLoader.set_value(true);
+  pros::delay(150);
+  MatchLoader.set_value(false);
+  chassis.turnToPoint(48, 48, 800, {.minSpeed = 50, .earlyExitRange = 5});
+  chassis.moveToPoint(48, 48, 2500, {.minSpeed = 60, .earlyExitRange = 4}); //move to second set of balls
+  pros::delay(600);
+  MatchLoader.set_value(true);
+  chassis.turnToHeading(-135, 1000, {.minSpeed = 50, .earlyExitRange = 10});
+  chassis.moveToPoint(60, 60, 1500, {.forwards = false}); //score in middle goal
+  pros::delay(400);
+  intakeScoreMiddle();
+  MatchLoader.set_value(false);
+  pros::delay(1000);
+  chassis.moveToPoint(24, 24, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  chassis.turnToHeading(180, 800, {.minSpeed = 50, .earlyExitRange = 10});
+  MatchLoader.set_value(true);
+  intakeHold();
+  chassis.moveToPoint(23.2, -20, 1400, {.maxSpeed = 80}); //second matchloader
+  chassis.waitUntilDone();
+  chassis.setPose(25, 14.5, chassis.getPose().theta); 
+  chassis.moveToPoint(25.5, 50, 1800, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4});  //score in second long goal
+  pros::delay(300);
+  MatchLoader.set_value(false);
+  pros::delay(350);
+  intakeScoreHigh();
+  chassis.waitUntilDone();
+}
+
 void AWP(){
   chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
   chassis.moveToPoint(23.8, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
@@ -264,30 +314,10 @@ void AWP(){
   //pros::delay(100);
   //intakeScoreHigh();
   chassis.moveToPoint(97, 43, 1500);
-  
   chassis.turnToPoint(75, 74, 1000);
   chassis.moveToPoint(83.7, 59, 1500);
   pros::delay(250);
   outake();
-  //OLD AWP 
-  // chassis.turnToHeading(-90, 800); // flipped: 180 - 90 = 90, negated = -90
-  // chassis.moveToPoint(46, 51, 2000, {.minSpeed = 60}); // flipped: 144 - 98 = 46
-  // intakeHold();
-  // chassis.turnToHeading(-45, 800); // flipped: 180 - 135 = 45, negated = -45
-  // chassis.moveToPoint(18, 24, 3000, {.minSpeed = 50}); // flipped: 144 - 126 = 18
-  // chassis.turnToHeading(180, 600);
-  // // MatchLoader.set_value(true);
-  // // pros::delay(1000);
-  // // intakeHold();  
-  // // chassis.moveToPoint(120, -20, 1600, {.maxSpeed=60});
-  // // chassis.waitUntilDone();
-  // // intakeStop();
-  // // chassis.setPose(120,14.5, chassis.getPose().theta);
-  // chassis.moveToPoint(18, 50, 3000, {.forwards = false, .earlyExitRange = 4}); // flipped: 144 - 126 = 18
-  // // pros::delay(300);
-  // // MatchLoader.set_value(false);
-  // pros::delay(600);
-  // intakeScoreHigh();
 }
 
 void rightSide(){
@@ -302,37 +332,48 @@ void rightSide(){
   outake();
   pros::delay(100);
   intakeStop();
-  // chassis.moveToPoint(119.5, 24, 4000); // mirrored from (27.5, 24)
-  // pros::delay(200);
-  // intakeHold();
-  // chassis.turnToHeading(180, 1000);
-  // MatchLoader.set_value(true);
-  // pros::delay(1000);
-  // intakeHold();
-  // chassis.moveToPoint(120.25, 0, 1500, {.maxSpeed=60}); // mirrored from (26.75, 0)
-  // chassis.waitUntilDone();
-  // intakeStop();
-  // chassis.setPose(120, 15, chassis.getPose().theta); // mirrored from (24, 15)
-  // chassis.moveToPoint(120, 45, 3000, {.forwards = false, .maxSpeed = 80}); // mirrored from (25, 45)
-  // pros::delay(400);
-  // MatchLoader.set_value(false);
-  // chassis.moveToPoint(120, 47, 3000, {.forwards = false}); // mirrored from (25, 47)
-  // pros::delay(300);
-  // outake();
-  // pros::delay(200);
-  // intakeScoreHigh();
-  // pros::delay(3000);
-  // intakeStop();
-  // pros::delay(100);
-  // chassis.moveToPoint(119, 35, 3000); // mirrored from (25, 35)
-  // Holder.set_value(false);
-  // chassis.moveToPoint(120, 47, 3000, {.forwards = false, .maxSpeed = 60}); // mirrored from (25, 47)
-  // pros::delay(200);
-  // chassis.moveToPoint(119, 24, 3000); // mirrored from (27.5, 24)
+}
+
+void left6plus3(){
+  chassis.setPose(65, 25, 0);
+  LeftWing.set_value(true);
+  chassis.moveToPose(48, 48, -30, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  intakeHold();
+  chassis.moveToPose(32, 64, -60, 2000, {.minSpeed = 60, .earlyExitRange = 1});
+  pros::delay(300);
+  MatchLoader.set_value(true);
+  chassis.moveToPoint(48, 48, 2000, {.forwards = false, .minSpeed = 60, .earlyExitRange = 4});
+  pros::delay(600);
+  MatchLoader.set_value(false);
+  chassis.turnToHeading(-135, 1000, {.minSpeed = 50, .earlyExitRange = 10});
+  chassis.moveToPoint(60, 60, 1500, {.forwards = false}); //score in middle goal
+  pros::delay(400);
+  intakeScoreMiddle();
+  MatchLoader.set_value(false);
+  pros::delay(1000);
+  chassis.moveToPoint(24, 24, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  chassis.turnToHeading(180, 800, {.minSpeed = 50, .earlyExitRange = 10});
+  MatchLoader.set_value(true);
+  intakeHold();
+  chassis.moveToPoint(23.2, -20, 1400, {.maxSpeed = 80}); //second matchloader
+  chassis.waitUntilDone();
+  chassis.setPose(25, 14.5, chassis.getPose().theta); 
+  chassis.moveToPoint(25.5, 50, 1800, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4});  //score in second long goal
+  pros::delay(300);
+  MatchLoader.set_value(false);
+  pros::delay(350);
+  intakeScoreHigh();
+  chassis.waitUntilDone();
+  chassis.setPose(24, 43.5, chassis.getPose().theta);
+  chassis.moveToPoint(24, 28, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  LeftWing.set_value(false);
+  intakeStop();
+  chassis.moveToPose(12, 40, 180, 3000, {.forwards = false, .minSpeed = 40, .earlyExitRange = 1});
+  chassis.moveToPose(12, 66, 180, 2000, {.forwards = false, .maxSpeed = 70});
 }
 
 void leftSide(){
-   chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
+  chassis.setPose(55.75, 24.75, -90); // reset pose at start of auton (flipped: 144 - 55.75 = 88.25)
   chassis.moveToPoint(23.8, 24.75, 1500); // flipped: 144 - 23.5 = 120.5
   chassis.turnToHeading(180, 800);
   MatchLoader.set_value(true);
@@ -405,9 +446,9 @@ void compRight(){
 }
 
 void compLeft(){
-chassis.setPose(0,0,0);
-pros::delay(12000);
-chassis.moveToPoint(0, 5, 2000);
+  chassis.setPose(0,0,0);
+  pros::delay(12000);
+  chassis.moveToPoint(0, 5, 2000);
 }
 
 void skills(){
