@@ -233,45 +233,46 @@ void outake(){
 }
 
 void AWP13(){
-  chassis.setPose(88.25, 24.75, -90); 
-  chassis.moveToPoint(120.2, 24.75, 1500, {.minSpeed = 60, .earlyExitRange = 4});
+  chassis.setPose(88.25, 24.75, 90); 
+  chassis.moveToPoint(120.2, 24.75, 1500, {.minSpeed = 60, .earlyExitRange = 9});
   chassis.turnToHeading(180, 800, {.minSpeed = 50, .earlyExitRange = 10});
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(120.8, -20, 1400, {.maxSpeed = 80}); //first matchloader
+  chassis.moveToPoint(120.8, -20, 1300, {.maxSpeed = 80}); //first matchloader
   chassis.waitUntilDone();
   chassis.setPose(119, 14.5, chassis.getPose().theta); 
-  chassis.moveToPoint(118.5, 50, 1800, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4}); //score in first long goal
-  pros::delay(300);
-  MatchLoader.set_value(false);
-  pros::delay(350);
+  chassis.moveToPoint(118.5, 50, 2500, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4}); //score in first long goal
+  pros::delay(550);
   intakeScoreHigh();
   chassis.waitUntilDone();
+  MatchLoader.set_value(false);
   chassis.setPose(120, 43.5, chassis.getPose().theta);
   chassis.moveToPoint(120, 32, 2000, {.minSpeed = 60, .earlyExitRange = 4});
   intakeStop();
-  chassis.turnToPoint(99, 46, 1500, {.minSpeed = 50, .earlyExitRange = 10});
+  chassis.turnToHeading(-40, 1500, {.minSpeed = 30, .earlyExitRange = 110});
   intakeHold();
-  chassis.moveToPoint(99, 46, 2000, {.minSpeed = 60, .earlyExitRange = 4});  //pick up first set of balls
-  pros::delay(300);
+  chassis.moveToPoint(92, 46, 2000, {.minSpeed = 60, .earlyExitRange = 4});  //pick up first set of balls
+  pros::delay(800);
   MatchLoader.set_value(true);
-  pros::delay(150);
+  pros::delay(100);
   MatchLoader.set_value(false);
-  chassis.turnToPoint(48, 48, 800, {.minSpeed = 50, .earlyExitRange = 5});
-  chassis.moveToPoint(48, 48, 2500, {.minSpeed = 60, .earlyExitRange = 4}); //move to second set of balls
-  pros::delay(600);
+  chassis.turnToHeading(-90, 800, {.minSpeed = 30, .earlyExitRange = 10});
+  chassis.moveToPoint(48, 45, 2500, {.minSpeed = 60, .earlyExitRange = 4}); //move to second set of balls
+  pros::delay(800);
   MatchLoader.set_value(true);
-  chassis.turnToHeading(-135, 1000, {.minSpeed = 50, .earlyExitRange = 10});
-  chassis.moveToPoint(60, 60, 1500, {.forwards = false}); //score in middle goal
-  pros::delay(400);
+  chassis.turnToHeading(-135, 1000, {.minSpeed = 30, .earlyExitRange = 80});
+  chassis.moveToPoint(62, 58, 1500, {.forwards = false}); //score in middle goal
+  pros::delay(100);
+  outake();
+  pros::delay(300);
   intakeScoreMiddle();
   MatchLoader.set_value(false);
-  pros::delay(1000);
-  chassis.moveToPoint(24, 24, 2000, {.minSpeed = 60, .earlyExitRange = 4});
+  pros::delay(2000);
+  chassis.moveToPoint(26, 24, 2000, {.minSpeed = 60, .earlyExitRange = 4});
   chassis.turnToHeading(180, 800, {.minSpeed = 50, .earlyExitRange = 10});
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(23.2, -20, 1400, {.maxSpeed = 80}); //second matchloader
+  chassis.moveToPoint(25.2, -20, 1400, {.maxSpeed = 80}); //second matchloader
   chassis.waitUntilDone();
   chassis.setPose(25, 14.5, chassis.getPose().theta); 
   chassis.moveToPoint(25.5, 50, 1800, {.forwards = false, .maxSpeed = 90, .earlyExitRange = 4});  //score in second long goal
@@ -491,25 +492,25 @@ void skills(){
   chassis.moveToPoint(24, 110, 1500);
   intakeStop();
   chassis.turnToHeading(90, 800);
-  chassis.moveToPoint(121.5, 115, 4000, {.maxSpeed = 70}); 
+  chassis.moveToPoint(119.5, 115, 4000, {.maxSpeed = 70}); 
   chassis.turnToHeading(0, 800);
   MatchLoader.set_value(true);
   intakeHold();
-  chassis.moveToPoint(121.5, 164, 3500, {.maxSpeed = 60}); //goes into matchloader 3
+  chassis.moveToPoint(119.5, 164, 3500, {.maxSpeed = 60}); //goes into matchloader 3
 
   // Flipped copy of recent steps (x -> 144 - x, y -> 144 - y)
   chassis.waitUntilDone();
   chassis.setPose(120, 129.5, chassis.getPose().theta);
   chassis.moveToPoint(120, 122, 1500, {.forwards = false});
-  chassis.moveToPose(130, 108, 0, 2200, {.forwards = false});
+  chassis.moveToPose(131, 108, 0, 2200, {.forwards = false});
   pros::delay(600);
   MatchLoader.set_value(false);
   intakeStop();
-  chassis.moveToPose(130, 46, 0, 4000, {.forwards = false});
-  chassis.moveToPose(116.5, 27, 60, 2000, {.forwards = false});
+  chassis.moveToPose(131, 46, 0, 4000, {.forwards = false});
+  chassis.moveToPose(117.5, 27, 60, 2000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.turnToHeading(180, 900);
-  chassis.moveToPoint(115.5, 64, 1000, {.forwards = false});
+  chassis.moveToPoint(116.5, 64, 1000, {.forwards = false});
   chassis.waitUntilDone();
   chassis.setPose(114, 42, chassis.getPose().theta);
   intakeScoreHigh();
@@ -526,17 +527,16 @@ void skills(){
   intakeScoreHigh();
   chassis.waitUntilDone();
   chassis.setPose(120, 43.5, chassis.getPose().theta);
-  chassis.moveToPoint(120, 15, 2000);
-  chassis.turnToHeading(75, 1200);
-  chassis.moveToPose(90, 4, 90, 4000, {.forwards = false});
-  chassis.moveToPoint(30, 4, 5000, {.minSpeed = 100});
+  chassis.moveToPoint(120, 28, 2000);
+  chassis.turnToHeading(50, 1200);
+  chassis.moveToPoint(30, 4, 5000, {.forwards = false, .minSpeed = 127});
 }
 
 // switch statement for autos
 void autonomous() {
   switch (autonomousMode) {
   case 1:
-    AWP();
+    AWP13();
     break;
   case 2:
     rightSide();
@@ -554,7 +554,7 @@ void autonomous() {
     skills();
     break;
   default:
-    skills();
+    AWP13();
     break;
   }
 }
